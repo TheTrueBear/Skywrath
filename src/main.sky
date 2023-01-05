@@ -1,0 +1,8 @@
+~ Test function
+fun main() {
+    print("Hello, world!")
+    let x = evaluate("What is your age? > ")
+    print(x .. " years old? HAH. I am " .. x + 10 .. " years old!")
+    let y = input("What is your name? > ")
+    print(y .. " is a wierd name... fine though.")
+}
