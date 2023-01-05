@@ -60,7 +60,7 @@ function Lexer:MakeNumber()
         numStr = numStr .. self.cc
     end
 
-    return number(numStr)
+    return Token.new(c.NUM, number(numStr))
 end
 
 -- Lexer tokenize function
