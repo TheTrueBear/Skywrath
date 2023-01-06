@@ -16,8 +16,8 @@ while true do
     local tokens, err = lexer:Tokenize()
 
     -- if there is an error
-    if err then
-        print("An error has occurred: " .. err)
+    if err ~= nil then
+        print("An error has occurred: " .. err:Repr())
     else
         table.printrepr(tokens)
     end

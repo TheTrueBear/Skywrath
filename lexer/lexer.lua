@@ -3,8 +3,9 @@
 local Lexer = {}
 
 -- Requirements
-local Token = require('lexer/token')
-local c     = require('c')
+local IllegalCharError = require('error/IllegalCharError')
+local Token            = require('lexer/token')
+local c                = require('c')
 require('l')
 
 -- Initializer
@@ -50,17 +51,21 @@ end
 
 -- Lexer make number function
 function Lexer:MakeNumber()
-    local numStr = self.cc
+    local numStr = ""
     local dots   = 0
 
-    while string.find(c.DIGITS .. '.', self.cc) do
+    while self.cc and string.find("1234567890.", self.cc) do
         if self.cc == '.' then
+            if dots >= 1 then
+                return IllegalCharError.new('Too many periods!')
+            end
             dots = dots + 1
         end
         numStr = numStr .. self.cc
+        self:Advance()
     end
 
-    return Token.new(c.NUM, number(numStr))
+    return Token.new(c.NUM, tonumber(numStr))
 end
 
 -- Lexer tokenize function
@@ -69,15 +74,38 @@ function Lexer:Tokenize()
 
     while self.cc do
         
+        -- Empty characters
         if string.find(' \t', self.cc) then
-            self:Advance()
+            
         
+        -- Digits
         elseif string.find(c.DIGITS, self.cc) then
-            table.insert(tokens, self:MakeNumber())
+            local token = self:MakeNumber()
+            if getmetatable(token) == IllegalCharError then
+                return {}, token
+            end
+            table.insert(tokens, token)
+
+        -- Plus
+        elseif self.cc == '+' then
+            table.insert(tokens, Token.new(c.PLUS))
+            self:Advance()
+        -- Minus
+        elseif self.cc == '-' then
+            table.insert(tokens, Token.new(c.MINUS))
+            self:Advance()
+        -- Multiply
+        elseif self.cc == '*' then
+            table.insert(tokens, Token.new(c.MUL))
+            self:Advance()
+        -- Divide
+        elseif self.cc == "/" then
+            table.insert(tokens, Token.new(c.DIV))
             self:Advance()
 
+        -- Handle all characters that don't go through
         else
-            return {}, "Invalid character."
+            return {}, IllegalCharError.new(self.cc)
         end
     end
 
