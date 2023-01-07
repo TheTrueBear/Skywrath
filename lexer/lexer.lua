@@ -54,7 +54,7 @@ function Lexer:MakeNumber()
     local numStr = ""
     local dots   = 0
 
-    while self.cc and string.find("1234567890.", self.cc) do
+    while self.cc and string.findchar('1234567890.', self.cc) do
         if self.cc == '.' then
             if dots >= 1 then
                 return IllegalCharError.new('Too many periods!')
@@ -75,16 +75,24 @@ function Lexer:Tokenize()
     while self.cc do
         
         -- Empty characters
-        if string.find(' \t', self.cc) then
-            
-        
+        if string.findchar(' \t', self.cc) then
+            self:Advance()
+
         -- Digits
-        elseif string.find(c.DIGITS, self.cc) then
+        elseif string.findchar(c.DIGITS, self.cc) then
             local token = self:MakeNumber()
             if getmetatable(token) == IllegalCharError then
                 return {}, token
             end
             table.insert(tokens, token)
+        
+        -- Parentheses
+        elseif self.cc == '(' then
+            table.insert(tokens, Token.new(c.LPAREN))
+            self:Advance()
+        elseif self.cc == ')' then
+            table.insert(tokens, Token.new(c.RPAREN))
+            self:Advance()
 
         -- Plus
         elseif self.cc == '+' then

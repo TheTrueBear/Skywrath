@@ -6,6 +6,7 @@ require('l')
 -- Terminal loop
 while true do
     -- read the line
+    io.write("skywrath $ ")
     local line = io.read()
     if line == "" then break end
 
